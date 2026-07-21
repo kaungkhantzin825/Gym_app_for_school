@@ -1,0 +1,1020 @@
+{
+    "info": {
+        "name": "GYM APP API",
+        "description": "Complete API collection for the GYM APP fitness and nutrition tracking application.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:8000/api/v1"
+        },
+        {
+            "key": "token",
+            "value": ""
+        }
+    ],
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{token}}",
+                "type": "string"
+            }
+        ]
+    },
+    "item": [
+        {
+            "name": "Authentication",
+            "item": [
+                {
+                    "name": "Register",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.collectionVariables.set('token', jsonData.token);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"phone\": \"+1234567890\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/register",
+                            "host": ["{{base_url}}"],
+                            "path": ["register"]
+                        }
+                    }
+                },
+                {
+                    "name": "Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.collectionVariables.set('token', jsonData.token);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"john@example.com\",\n    \"password\": \"password123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/login",
+                            "host": ["{{base_url}}"],
+                            "path": ["login"]
+                        }
+                    }
+                },
+                {
+                    "name": "Logout",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/logout",
+                            "host": ["{{base_url}}"],
+                            "path": ["logout"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Current User",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/user",
+                            "host": ["{{base_url}}"],
+                            "path": ["user"]
+                        }
+                    }
+                },
+                {
+                    "name": "Change Password",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"current_password\": \"old-password\",\n    \"password\": \"new-password\",\n    \"password_confirmation\": \"new-password\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/password",
+                            "host": ["{{base_url}}"],
+                            "path": ["password"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Profile",
+            "item": [
+                {
+                    "name": "Get Profile",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/profile",
+                            "host": ["{{base_url}}"],
+                            "path": ["profile"]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Profile",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"John Doe\",\n    \"age\": 28,\n    \"gender\": \"male\",\n    \"height\": 175.00,\n    \"current_weight\": 80.00,\n    \"target_weight\": 75.00,\n    \"goal\": \"lose_weight\",\n    \"activity_level\": \"moderate\",\n    \"daily_calories_target\": 2200,\n    \"daily_protein_target\": 150,\n    \"daily_carbs_target\": 250,\n    \"daily_fat_target\": 70\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/profile",
+                            "host": ["{{base_url}}"],
+                            "path": ["profile"]
+                        }
+                    }
+                },
+                {
+                    "name": "Upload Profile Photo",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "photo",
+                                    "type": "file",
+                                    "src": ""
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/profile/photo",
+                            "host": ["{{base_url}}"],
+                            "path": ["profile", "photo"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Meals",
+            "item": [
+                {
+                    "name": "List Meals",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/meals?date=2026-05-05",
+                            "host": ["{{base_url}}"],
+                            "path": ["meals"],
+                            "query": [
+                                {
+                                    "key": "date",
+                                    "value": "2026-05-05",
+                                    "disabled": true
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Meal",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"breakfast\",\n    \"notes\": \"Morning meal\",\n    \"meal_time\": \"2026-05-05 08:00:00\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/meals",
+                            "host": ["{{base_url}}"],
+                            "path": ["meals"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Meal",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/meals/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["meals", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Meal",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"lunch\",\n    \"notes\": \"Updated notes\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/meals/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["meals", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Meal",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/meals/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["meals", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Add Food Log to Meal",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"food_name\": \"Chicken Breast\",\n    \"fatsecret_food_id\": \"123456\",\n    \"brand_name\": null,\n    \"serving_size\": 150,\n    \"serving_unit\": \"g\",\n    \"calories\": 248,\n    \"protein\": 46.5,\n    \"carbs\": 0,\n    \"fat\": 5.4,\n    \"fiber\": 0,\n    \"sugar\": 0,\n    \"sodium\": 120\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/meals/1/food-logs",
+                            "host": ["{{base_url}}"],
+                            "path": ["meals", "1", "food-logs"]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Food Log from Meal",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/meals/1/food-logs/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["meals", "1", "food-logs", "1"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Exercises",
+            "item": [
+                {
+                    "name": "List Exercises",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/exercises?type=strength",
+                            "host": ["{{base_url}}"],
+                            "path": ["exercises"],
+                            "query": [
+                                {
+                                    "key": "type",
+                                    "value": "strength",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "date",
+                                    "value": "2026-05-05",
+                                    "disabled": true
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Exercise",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"exercise_name\": \"Bench Press\",\n    \"exercise_type\": \"strength\",\n    \"calories_burned\": 180,\n    \"sets\": 4,\n    \"reps\": 10,\n    \"weight\": 80,\n    \"exercise_time\": \"2026-05-05 10:00:00\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/exercises",
+                            "host": ["{{base_url}}"],
+                            "path": ["exercises"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Exercise",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/exercises/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["exercises", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Exercise",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"exercise_name\": \"Incline Bench Press\",\n    \"sets\": 5,\n    \"reps\": 8\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/exercises/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["exercises", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Exercise",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/exercises/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["exercises", "1"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Workouts",
+            "item": [
+                {
+                    "name": "List Workouts",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/workouts",
+                            "host": ["{{base_url}}"],
+                            "path": ["workouts"]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Workout",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Push Day\",\n    \"started_at\": \"2026-05-05 10:00:00\",\n    \"notes\": \"Feeling strong today\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/workouts",
+                            "host": ["{{base_url}}"],
+                            "path": ["workouts"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Workout",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/workouts/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["workouts", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Workout",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"ended_at\": \"2026-05-05 11:15:00\",\n    \"total_volume\": 12500,\n    \"total_duration_minutes\": 75\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/workouts/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["workouts", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Workout",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/workouts/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["workouts", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Add Workout Set",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"exercise_id\": 1,\n    \"set_number\": 1,\n    \"reps\": 10,\n    \"weight\": 80,\n    \"rpe\": 7,\n    \"rest_time_seconds\": 90,\n    \"is_superset\": false\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/workouts/1/sets",
+                            "host": ["{{base_url}}"],
+                            "path": ["workouts", "1", "sets"]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Workout Set",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/workouts/1/sets/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["workouts", "1", "sets", "1"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Weight Logs",
+            "item": [
+                {
+                    "name": "List Weight Logs",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/weight-logs",
+                            "host": ["{{base_url}}"],
+                            "path": ["weight-logs"]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Weight Log",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"weight\": 79.5,\n    \"notes\": \"After morning workout\",\n    \"logged_at\": \"2026-05-05 07:00:00\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/weight-logs",
+                            "host": ["{{base_url}}"],
+                            "path": ["weight-logs"]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Weight Log",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/weight-logs/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["weight-logs", "1"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Photo Gallery",
+            "item": [
+                {
+                    "name": "List Photos",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/photo-galleries",
+                            "host": ["{{base_url}}"],
+                            "path": ["photo-galleries"]
+                        }
+                    }
+                },
+                {
+                    "name": "Upload Photo",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "photo",
+                                    "type": "file",
+                                    "src": ""
+                                },
+                                {
+                                    "key": "caption",
+                                    "value": "Week 4 progress",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "taken_at",
+                                    "value": "2026-05-05",
+                                    "type": "text"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/photo-galleries",
+                            "host": ["{{base_url}}"],
+                            "path": ["photo-galleries"]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Photo",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/photo-galleries/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["photo-galleries", "1"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Tutorial Videos",
+            "item": [
+                {
+                    "name": "List Tutorial Videos",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/tutorial-videos?gender=both&muscle_group=legs",
+                            "host": ["{{base_url}}"],
+                            "path": ["tutorial-videos"],
+                            "query": [
+                                {
+                                    "key": "gender",
+                                    "value": "both",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "muscle_group",
+                                    "value": "legs",
+                                    "disabled": true
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Tutorial Video",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/tutorial-videos/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["tutorial-videos", "1"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Support Messages",
+            "item": [
+                {
+                    "name": "List Support Messages",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/support-messages",
+                            "host": ["{{base_url}}"],
+                            "path": ["support-messages"]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Support Message",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"subject\": \"Cannot sync data\",\n    \"message\": \"I'm having trouble syncing my workout data between devices.\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/support-messages",
+                            "host": ["{{base_url}}"],
+                            "path": ["support-messages"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "AI Features",
+            "item": [
+                {
+                    "name": "Analyze Meal Photo",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "image",
+                                    "type": "file",
+                                    "src": ""
+                                },
+                                {
+                                    "key": "meal_type",
+                                    "value": "lunch",
+                                    "type": "text"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/ai/meal/analyze",
+                            "host": ["{{base_url}}"],
+                            "path": ["ai", "meal", "analyze"]
+                        }
+                    }
+                },
+                {
+                    "name": "Generate Workout",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"fitness_level\": \"intermediate\",\n    \"primary_goal\": \"build muscle\",\n    \"duration_minutes\": 45,\n    \"available_equipment\": \"dumbbells, resistance bands\",\n    \"focus_area\": \"upper body\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/ai/workout/generate",
+                            "host": ["{{base_url}}"],
+                            "path": ["ai", "workout", "generate"]
+                        }
+                    }
+                },
+                {
+                    "name": "Chat with Coach",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"message\": \"What should I eat after my workout?\",\n    \"conversation_id\": null\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/ai/coach/chat",
+                            "host": ["{{base_url}}"],
+                            "path": ["ai", "coach", "chat"]
+                        }
+                    }
+                },
+                {
+                    "name": "List Coach Conversations",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/ai/coach/conversations",
+                            "host": ["{{base_url}}"],
+                            "path": ["ai", "coach", "conversations"]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}
