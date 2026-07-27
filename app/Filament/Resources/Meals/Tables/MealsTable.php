@@ -7,6 +7,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
@@ -17,39 +18,48 @@ class MealsTable
     {
         return $table
             ->columns([
+                ImageColumn::make('photo_path')
+                    ->label('Photo')
+                    ->square()
+                    ->disk('public'),
+
                 TextColumn::make('user.name')
+                    ->label('Member')
+                    ->badge()
+                    ->color('primary')
                     ->searchable(),
+
                 TextColumn::make('name')
+                    ->label('Meal Name')
+                    ->weight('bold')
                     ->searchable(),
-                TextColumn::make('photo_path')
-                    ->searchable(),
+
                 TextColumn::make('total_calories')
-                    ->numeric()
+                    ->label('Calories')
+                    ->suffix(' kcal')
+                    ->badge()
+                    ->color('warning')
                     ->sortable(),
+
                 TextColumn::make('total_protein')
-                    ->numeric()
+                    ->label('Protein')
+                    ->suffix('g')
                     ->sortable(),
+
                 TextColumn::make('total_carbs')
-                    ->numeric()
+                    ->label('Carbs')
+                    ->suffix('g')
                     ->sortable(),
+
                 TextColumn::make('total_fat')
-                    ->numeric()
+                    ->label('Fat')
+                    ->suffix('g')
                     ->sortable(),
+
                 TextColumn::make('meal_time')
-                    ->dateTime()
+                    ->label('Meal Time')
+                    ->dateTime('M j, Y g:i A')
                     ->sortable(),
-                TextColumn::make('deleted_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 TrashedFilter::make(),

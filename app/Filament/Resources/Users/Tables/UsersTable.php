@@ -17,25 +17,52 @@ class UsersTable
         return $table
             ->columns([
                 ImageColumn::make('profile_photo')
-                    ->circular(),
+                    ->label('Photo')
+                    ->circular()
+                    ->defaultImageUrl('https://ui-avatars.com/api/?name=Member&background=10B981&color=fff'),
+
                 TextColumn::make('name')
+                    ->label('Member Name')
+                    ->weight('bold')
                     ->searchable()
                     ->sortable(),
+
                 TextColumn::make('email')
-                    ->label('Email address')
+                    ->label('Email Address')
                     ->searchable(),
-                TextColumn::make('phone')
-                    ->searchable(),
+
                 TextColumn::make('role')
+                    ->label('Role')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'admin' => 'danger',
-                        default => 'primary',
+                        default => 'success',
                     }),
+
+                TextColumn::make('workouts_count')
+                    ->label('Workouts')
+                    ->counts('workouts')
+                    ->badge()
+                    ->color('warning')
+                    ->sortable(),
+
+                TextColumn::make('meals_count')
+                    ->label('Meals Logged')
+                    ->counts('meals')
+                    ->badge()
+                    ->color('info')
+                    ->sortable(),
+
+                TextColumn::make('profile.goal')
+                    ->label('Goal')
+                    ->badge()
+                    ->color('primary')
+                    ->placeholder('Not set'),
+
                 TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Joined Date')
+                    ->dateTime('M j, Y')
+                    ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('role')

@@ -16,9 +16,16 @@ class MealController extends Controller
         $meals = $request->user()
             ->meals()
             ->with('foodLogs')
-            ->when($request->date, fn ($q) => $q->whereDate('meal_time', $request->date))
+            ->when($request->date, function ($q) use ($request) {
+                $date = $request->date;
+                $q->where(function ($sub) use ($date) {
+                    $sub->whereDate('meal_time', $date)
+                        ->orWhereDate('created_at', $date);
+                });
+            })
             ->orderBy('meal_time', 'desc')
-            ->paginate(20);
+            ->orderBy('created_at', 'desc')
+            ->paginate(50);
 
         return response()->json($meals);
     }

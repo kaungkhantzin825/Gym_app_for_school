@@ -18,33 +18,37 @@ class WorkoutsTable
         return $table
             ->columns([
                 TextColumn::make('user.name')
+                    ->label('Member')
+                    ->badge()
+                    ->color('primary')
                     ->searchable(),
+
                 TextColumn::make('name')
+                    ->label('Workout Title')
+                    ->weight('bold')
                     ->searchable(),
-                TextColumn::make('started_at')
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('ended_at')
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('total_volume')
-                    ->numeric()
-                    ->sortable(),
+
                 TextColumn::make('total_duration_minutes')
-                    ->numeric()
+                    ->label('Duration')
+                    ->suffix(' mins')
                     ->sortable(),
-                TextColumn::make('deleted_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('total_volume')
+                    ->label('Total Volume')
+                    ->suffix(' kg')
+                    ->badge()
+                    ->color('success')
+                    ->sortable(),
+
+                TextColumn::make('started_at')
+                    ->label('Started At')
+                    ->dateTime('M j, Y g:i A')
+                    ->sortable(),
+
+                TextColumn::make('ended_at')
+                    ->label('Ended At')
+                    ->dateTime('g:i A')
+                    ->sortable(),
             ])
             ->filters([
                 TrashedFilter::make(),

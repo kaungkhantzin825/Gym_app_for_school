@@ -19,7 +19,7 @@ class MealAnalyzer implements Agent, HasStructuredOutput
 
     public function model(): string
     {
-        return 'pixtral-large-latest';
+        return 'pixtral-12b-2409';
     }
 
     /**

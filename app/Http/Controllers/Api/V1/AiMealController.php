@@ -35,10 +35,24 @@ class AiMealController extends Controller
                 'message' => 'Meal scan is temporarily unavailable because the AI provider is rate limited. Please retry shortly.',
                 'provider' => 'mistral',
             ], 429);
+        } catch (\Throwable $exception) {
+            Storage::disk('public')->delete($imagePath);
+
+            return response()->json([
+                'message' => 'Failed to analyze meal image: ' . $exception->getMessage(),
+            ], 500);
+        }
+
+        $analysisPayload = $this->resolveStructuredResponsePayload($response);
+
+        if (empty($analysisPayload) || empty($analysisPayload['foods'])) {
+            return response()->json([
+                'message' => 'Could not identify any food items in the image. Please try a clearer photo.',
+            ], 422);
         }
 
         return response()->json([
-            'analysis' => $this->resolveStructuredResponsePayload($response),
+            'analysis' => $analysisPayload,
             'image_path' => $imagePath,
         ]);
     }

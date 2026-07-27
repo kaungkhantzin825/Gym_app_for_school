@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Tutorial videos
-        TutorialVideo::factory(10)->create();
+        $this->call(TutorialVideoSeeder::class);
 
         // Admin exercise catalog
         $this->call(AdminExerciseSeeder::class);

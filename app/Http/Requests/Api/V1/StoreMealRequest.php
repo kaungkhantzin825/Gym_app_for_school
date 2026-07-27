@@ -17,9 +17,9 @@ class StoreMealRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'in:breakfast,lunch,dinner,snack'],
+            'name' => ['required', 'string', 'max:255'],
             'photo_path' => ['nullable', 'string'],
-            'notes' => ['nullable', 'string'],
+            'notes' => ['nullable', 'string', 'max:1000'],
             'meal_time' => ['required', 'date'],
         ];
     }

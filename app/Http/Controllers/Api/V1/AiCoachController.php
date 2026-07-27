@@ -27,8 +27,12 @@ class AiCoachController extends Controller
         $response = $agent->prompt($request->message);
 
         return response()->json([
-            'message' => $response->content,
+            'message'         => $response->text,
             'conversation_id' => $response->conversationId,
+            'usage'           => [
+                'prompt_tokens'     => $response->usage->promptTokens ?? 0,
+                'completion_tokens' => $response->usage->completionTokens ?? 0,
+            ],
         ]);
     }
 
