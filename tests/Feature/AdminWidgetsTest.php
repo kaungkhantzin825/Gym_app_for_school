@@ -97,6 +97,18 @@ class AdminWidgetsTest extends TestCase
             ->assertSee('80%');
     }
 
+    public function test_the_top_exercises_table_does_not_use_an_eloquent_query(): void
+    {
+        $this->logSession(reps: 10, weight: 80);
+
+        $table = Livewire::test(TopExercisesWidget::class)->instance()->getTable();
+
+        // Model-backed tables get `ORDER BY workout_sets.id` appended for a
+        // stable sort, and MySQL ONLY_FULL_GROUP_BY rejects that column in a
+        // grouped query (error 1055). records() keeps Filament out of the SQL.
+        $this->assertFalse($table->hasQuery());
+    }
+
     /**
      * One saved workout with a single set, through the real models.
      */

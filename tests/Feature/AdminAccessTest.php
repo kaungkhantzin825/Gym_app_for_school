@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Providers\Filament\AdminPanelProvider;
+use Filament\Panel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -79,6 +81,44 @@ class AdminAccessTest extends TestCase
         $this->actingAs($admin)->get('/admin')
             ->assertOk()
             ->assertSee('build/assets/theme-', escape: false);
+    }
+
+    /**
+     * public/build is gitignored, so a deploy that pulls the code without
+     * running `npm run build` used to 500 the whole panel with "Unable to
+     * locate file in Vite manifest". The panel must fall back to Filament's
+     * own published assets instead.
+     */
+    public function test_the_theme_is_skipped_when_the_vite_manifest_is_missing(): void
+    {
+        $emptyPublicPath = sys_get_temp_dir().DIRECTORY_SEPARATOR.'inti-public-'.uniqid();
+        mkdir($emptyPublicPath, 0777, true);
+
+        $originalPublicPath = public_path();
+        $this->app->usePublicPath($emptyPublicPath);
+
+        try {
+            $panel = (new AdminPanelProvider($this->app))->panel(Panel::make());
+
+            $this->assertNull($panel->getViteTheme());
+        } finally {
+            $this->app->usePublicPath($originalPublicPath);
+            @rmdir($emptyPublicPath);
+        }
+    }
+
+    public function test_the_theme_is_registered_when_it_has_been_built(): void
+    {
+        if (! is_file(public_path('build/manifest.json'))) {
+            $this->markTestSkipped('Vite assets have not been built.');
+        }
+
+        $panel = (new AdminPanelProvider($this->app))->panel(Panel::make());
+
+        $this->assertSame(
+            'resources/css/filament/admin/theme.css',
+            $panel->getViteTheme()
+        );
     }
 
     public function test_the_promote_command_grants_admin_to_an_existing_account(): void

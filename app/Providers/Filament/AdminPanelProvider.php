@@ -32,13 +32,12 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        return $panel
+        $panel = $panel
             ->default()
             ->id('admin')
             ->path('admin')
             ->login()
             ->brandName('INTI Gym')
-            ->viteTheme('resources/css/filament/admin/theme.css')
             ->font('Inter')
             ->defaultThemeMode(ThemeMode::Dark)
             ->maxContentWidth(Width::Full)
@@ -105,5 +104,43 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+
+        return $this->withTheme($panel);
+    }
+
+    /**
+     * Register the compiled theme only when it actually exists.
+     *
+     * public/build is gitignored, so a deploy that pulls the code but skips
+     * `npm run build` used to 500 the whole panel with "Unable to locate file
+     * in Vite manifest". Falling back to Filament's own published assets keeps
+     * the admin usable (just not flattened) until the build runs.
+     */
+    private function withTheme(Panel $panel): Panel
+    {
+        if (! $this->themeIsBuilt()) {
+            return $panel;
+        }
+
+        return $panel->viteTheme('resources/css/filament/admin/theme.css');
+    }
+
+    private function themeIsBuilt(): bool
+    {
+        // `npm run dev` writes a hot file; Vite serves the theme itself then.
+        if (is_file(public_path('hot'))) {
+            return true;
+        }
+
+        $manifest = public_path('build/manifest.json');
+
+        if (! is_file($manifest)) {
+            return false;
+        }
+
+        $entries = json_decode((string) file_get_contents($manifest), true);
+
+        return is_array($entries)
+            && array_key_exists('resources/css/filament/admin/theme.css', $entries);
     }
 }
