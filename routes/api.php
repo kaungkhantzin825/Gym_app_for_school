@@ -49,7 +49,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/meals/{meal}/food-logs', [FoodLogController::class, 'store']);
         Route::delete('/meals/{meal}/food-logs/{foodLog}', [FoodLogController::class, 'destroy']);
 
-        // Exercises
+        
         Route::apiResource('exercises', ExerciseController::class);
 
         // Workouts & Sets
