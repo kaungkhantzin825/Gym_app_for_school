@@ -3,8 +3,6 @@
 namespace App\Models;
 
 use Database\Factories\UserFactory;
-use Filament\Models\Contracts\FilamentUser;
-use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,7 +14,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 #[Fillable(['name', 'email', 'phone', 'profile_photo', 'password', 'role', 'fcm_token', 'device_type'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
@@ -40,7 +38,7 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Who may open /admin.
+     * Who may open the admin area.
      *
      * Three ways in, in order of precedence:
      *  1. the account is an admin;
@@ -49,7 +47,7 @@ class User extends Authenticatable implements FilamentUser
      *     and this branch stops applying;
      *  3. the email is listed in ADMIN_EMAILS (recovery hatch).
      */
-    public function canAccessPanel(Panel $panel): bool
+    public function canAccessAdmin(): bool
     {
         if ($this->isAdmin()) {
             return true;

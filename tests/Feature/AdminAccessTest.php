@@ -3,11 +3,15 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use App\Providers\Filament\AdminPanelProvider;
-use Filament\Panel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Who gets into /admin, and how.
+ *
+ * The panel is Inertia + Vue now, so these tests assert on the HTTP contract
+ * instead of on a panel object.
+ */
 class AdminAccessTest extends TestCase
 {
     use RefreshDatabase;
@@ -16,7 +20,9 @@ class AdminAccessTest extends TestCase
     {
         $admin = User::factory()->create(['role' => 'admin']);
 
-        $this->actingAs($admin)->get('/admin')->assertOk();
+        $this->actingAs($admin)->get('/admin')
+            ->assertOk()
+            ->assertSee('INTI Gym', escape: false);
     }
 
     public function test_a_regular_member_is_forbidden_once_an_admin_exists(): void
@@ -57,39 +63,25 @@ class AdminAccessTest extends TestCase
             'role' => 'user',
         ]);
 
-        $this->assertTrue($owner->canAccessPanel(filament()->getPanel('admin')));
+        $this->assertTrue($owner->canAccessAdmin());
     }
 
-    public function test_guests_are_sent_to_the_login_screen(): void
+    public function test_a_guest_is_sent_to_the_login_screen(): void
     {
         $this->get('/admin')->assertRedirect('/admin/login');
     }
 
-    public function test_the_dashboard_renders_for_an_admin(): void
+    public function test_the_login_screen_renders(): void
     {
-        $admin = User::factory()->create(['role' => 'admin']);
-
-        $this->actingAs($admin)->get('/admin')
-            ->assertOk()
-            ->assertSee('INTI Gym');
-    }
-
-    public function test_the_panel_loads_the_compiled_theme(): void
-    {
-        $admin = User::factory()->create(['role' => 'admin']);
-
-        $this->actingAs($admin)->get('/admin')
-            ->assertOk()
-            ->assertSee('build/assets/theme-', escape: false);
+        $this->get('/admin/login')->assertOk();
     }
 
     /**
      * public/build is gitignored, so a deploy that pulls the code without
-     * running `npm run build` used to 500 the whole panel with "Unable to
-     * locate file in Vite manifest". The panel must fall back to Filament's
-     * own published assets instead.
+     * running `npm run build` has no manifest. That must produce a readable
+     * instruction rather than a Vite stack trace.
      */
-    public function test_the_theme_is_skipped_when_the_vite_manifest_is_missing(): void
+    public function test_a_missing_asset_build_explains_itself(): void
     {
         $emptyPublicPath = sys_get_temp_dir().DIRECTORY_SEPARATOR.'inti-public-'.uniqid();
         mkdir($emptyPublicPath, 0777, true);
@@ -98,27 +90,57 @@ class AdminAccessTest extends TestCase
         $this->app->usePublicPath($emptyPublicPath);
 
         try {
-            $panel = (new AdminPanelProvider($this->app))->panel(Panel::make());
-
-            $this->assertNull($panel->getViteTheme());
+            $this->get('/admin/login')
+                ->assertOk()
+                ->assertSee('The admin assets have not been built', escape: false)
+                ->assertDontSee('/build/assets/', escape: false);
         } finally {
             $this->app->usePublicPath($originalPublicPath);
             @rmdir($emptyPublicPath);
         }
     }
 
-    public function test_the_theme_is_registered_when_it_has_been_built(): void
+    public function test_an_admin_can_sign_in(): void
     {
-        if (! is_file(public_path('build/manifest.json'))) {
-            $this->markTestSkipped('Vite assets have not been built.');
-        }
+        $admin = User::factory()->create([
+            'role' => 'admin',
+            'password' => bcrypt('correct-horse'),
+        ]);
 
-        $panel = (new AdminPanelProvider($this->app))->panel(Panel::make());
+        $this->post('/admin/login', [
+            'email' => $admin->email,
+            'password' => 'correct-horse',
+        ])->assertRedirect('/admin');
 
-        $this->assertSame(
-            'resources/css/filament/admin/theme.css',
-            $panel->getViteTheme()
-        );
+        $this->assertAuthenticatedAs($admin);
+    }
+
+    public function test_a_member_cannot_sign_in_even_with_the_right_password(): void
+    {
+        User::factory()->create(['role' => 'admin']);
+
+        $member = User::factory()->create([
+            'role' => 'user',
+            'password' => bcrypt('correct-horse'),
+        ]);
+
+        $this->post('/admin/login', [
+            'email' => $member->email,
+            'password' => 'correct-horse',
+        ])->assertSessionHasErrors('email');
+
+        $this->assertGuest();
+    }
+
+    public function test_an_admin_can_sign_out(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($admin)
+            ->post('/admin/logout')
+            ->assertRedirect('/admin/login');
+
+        $this->assertGuest();
     }
 
     public function test_the_promote_command_grants_admin_to_an_existing_account(): void
