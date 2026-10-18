@@ -7,6 +7,11 @@ use App\Models\Workout;
 
 class WorkoutPolicy
 {
+    public function before(User $user): ?bool
+    {
+        return $user->isAdmin() ? true : null;
+    }
+
     public function view(User $user, Workout $workout): bool
     {
         return $user->id === $workout->user_id;
