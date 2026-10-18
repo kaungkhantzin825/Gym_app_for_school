@@ -20,6 +20,7 @@ class WorkoutSet extends Model
         'weight',
         'rpe',
         'rest_time_seconds',
+        'form_score',
         'is_superset',
     ];
 

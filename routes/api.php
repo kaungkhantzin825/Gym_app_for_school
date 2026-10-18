@@ -9,10 +9,12 @@ use App\Http\Controllers\Api\V1\FoodLogController;
 use App\Http\Controllers\Api\V1\MealController;
 use App\Http\Controllers\Api\V1\PhotoGalleryController;
 use App\Http\Controllers\Api\V1\ProfileController;
+use App\Http\Controllers\Api\V1\ProgressController;
 use App\Http\Controllers\Api\V1\SupportMessageController;
 use App\Http\Controllers\Api\V1\TutorialVideoController;
 use App\Http\Controllers\Api\V1\WeightLogController;
 use App\Http\Controllers\Api\V1\WorkoutController;
+use App\Http\Controllers\Api\V1\WorkoutSessionController;
 use App\Http\Controllers\Api\V1\WorkoutSetController;
 use Illuminate\Support\Facades\Route;
 
@@ -51,7 +53,14 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('exercises', ExerciseController::class);
 
         // Workouts & Sets
+        // One-shot write for a finished live session (workout + exercises +
+        // every set). Must be declared before the resource so `session` is not
+        // mistaken for a workout id.
+        Route::post('/workouts/session', [WorkoutSessionController::class, 'store']);
         Route::apiResource('workouts', WorkoutController::class);
+
+        // Progress analytics derived from the saved sets.
+        Route::get('/progress', [ProgressController::class, 'index']);
         Route::post('/workouts/{workout}/sets', [WorkoutSetController::class, 'store']);
         Route::delete('/workouts/{workout}/sets/{workoutSet}', [WorkoutSetController::class, 'destroy']);
 

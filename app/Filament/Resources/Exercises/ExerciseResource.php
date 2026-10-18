@@ -23,7 +23,9 @@ class ExerciseResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBolt;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Fitness';
+    protected static string|UnitEnum|null $navigationGroup = 'Training';
+
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {

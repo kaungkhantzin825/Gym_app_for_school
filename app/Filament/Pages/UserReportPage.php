@@ -6,6 +6,7 @@ use App\Models\Meal;
 use App\Models\User;
 use App\Models\UserProfile;
 use App\Models\Workout;
+use App\Models\WorkoutSet;
 use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
@@ -16,22 +17,32 @@ class UserReportPage extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChartBar;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Analytics & Reports';
+    protected static string|UnitEnum|null $navigationGroup = 'Members';
 
-    protected static ?string $title = 'Member Activity & Progress Reports';
+    protected static ?string $title = 'Member report';
 
-    protected static ?string $navigationLabel = 'Member Reports';
+    protected static ?string $navigationLabel = 'Report';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 2;
 
     protected string $view = 'filament.pages.user-report-page';
 
     public int $totalMembers = 0;
+
     public int $activeMembers30Days = 0;
+
     public int $totalWorkoutsLogged = 0;
+
     public int $totalMealsLogged = 0;
+
     public float $totalVolumeLiftedKg = 0;
+
+    public ?float $averageFormScore = null;
+
+    public int $scoredSetCount = 0;
+
     public array $topActiveUsers = [];
+
     public array $goalDistribution = [];
 
     public function mount(): void
@@ -46,6 +57,11 @@ class UserReportPage extends Page
         $this->totalWorkoutsLogged = Workout::count();
         $this->totalMealsLogged = Meal::count();
         $this->totalVolumeLiftedKg = (float) Workout::sum('total_volume');
+
+        // Camera-derived quality signal: only present when a session ran the
+        // pose tracker, so the average is taken over scored sets alone.
+        $this->averageFormScore = WorkoutSet::whereNotNull('form_score')->avg('form_score');
+        $this->scoredSetCount = WorkoutSet::whereNotNull('form_score')->count();
 
         // Top 10 Active Members by Workout count
         $this->topActiveUsers = User::withCount(['workouts', 'meals'])

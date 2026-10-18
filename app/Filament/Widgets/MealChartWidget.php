@@ -8,9 +8,9 @@ use Illuminate\Support\Carbon;
 
 class MealChartWidget extends ChartWidget
 {
-    protected ?string $heading = 'Daily Meals Logged (Last 7 Days)';
+    protected ?string $heading = 'Meals logged, last 7 days';
 
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 4;
 
     protected function getData(): array
     {
@@ -26,12 +26,13 @@ class MealChartWidget extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'Meals Logged',
+                    'label' => 'Meals logged',
                     'data' => $data,
-                    'borderColor' => '#F59E0B',
-                    'backgroundColor' => 'rgba(245, 158, 11, 0.15)',
+                    'borderColor' => '#94a3b8',
+                    'backgroundColor' => 'rgba(148, 163, 184, 0.12)',
                     'fill' => true,
-                    'tension' => 0.4,
+                    'tension' => 0.35,
+                    'pointRadius' => 2,
                 ],
             ],
             'labels' => $labels,

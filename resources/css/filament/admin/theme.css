@@ -1,0 +1,92 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+
+/*
+ * INTI Gym admin theme.
+ *
+ * Same rules as the mobile app: one accent (lime), no gradients, no glows,
+ * no elevation. Depth is expressed with a 1px border instead of a shadow, and
+ * every radius is small enough to read as a control rather than a card.
+ */
+
+:root {
+    --inti-accent: #c6f24e;
+    --inti-radius: 6px;
+}
+
+/* Flat controls: kill the shadow, pull the radius down. */
+.fi-btn,
+.fi-input,
+.fi-input-wrp,
+.fi-select-input,
+.fi-textarea,
+.fi-badge,
+.fi-section,
+.fi-dropdown-panel,
+.fi-modal-window,
+.fi-ta,
+.fi-sidebar,
+.fi-topbar,
+.fi-global-search,
+.fi-wi-stats-overview-stat {
+    border-radius: var(--inti-radius) !important;
+    box-shadow: none !important;
+}
+
+/* A border replaces the shadow so panels still read as separate surfaces. */
+.fi-section,
+.fi-wi-stats-overview-stat {
+    border: 1px solid rgb(0 0 0 / 0.08);
+}
+
+.dark .fi-section,
+.dark .fi-wi-stats-overview-stat {
+    border-color: rgb(255 255 255 / 0.07);
+}
+
+/* Sidebar and topbar sit flush with the page instead of floating over it. */
+.fi-sidebar {
+    border-inline-end: 1px solid rgb(0 0 0 / 0.08);
+}
+
+.dark .fi-sidebar {
+    border-inline-end-color: rgb(255 255 255 / 0.07);
+}
+
+.fi-topbar {
+    border-bottom: 1px solid rgb(0 0 0 / 0.08);
+}
+
+.dark .fi-topbar {
+    border-bottom-color: rgb(255 255 255 / 0.07);
+}
+
+/* Numerals line up in stat cards and tables. */
+.fi-wi-stats-overview-stat-value,
+.fi-ta-text,
+.fi-ta-cell {
+    font-variant-numeric: tabular-nums;
+}
+
+.fi-wi-stats-overview-stat-value {
+    letter-spacing: -0.02em;
+}
+
+/* Tighter section headings — the admin is a tool, not a landing page. */
+.fi-section-header-heading,
+.fi-ta-header-heading,
+.fi-header-heading {
+    letter-spacing: -0.01em;
+}
+
+/* Lime reads poorly as text on light surfaces; keep it for fills only. */
+.fi-badge.fi-color-primary {
+    color: #101400;
+}
+
+/* Chart canvases already carry their own padding; don't double it. */
+.fi-wi-chart canvas {
+    border-radius: var(--inti-radius);
+}

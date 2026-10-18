@@ -23,6 +23,8 @@ class SupportMessageController extends Controller
     {
         $message = $request->user()->supportMessages()->create($request->validated());
 
-        return response()->json($message, 201);
+        // `status` is a database default, so refresh before serialising or the
+        // client receives null instead of "pending".
+        return response()->json($message->refresh(), 201);
     }
 }

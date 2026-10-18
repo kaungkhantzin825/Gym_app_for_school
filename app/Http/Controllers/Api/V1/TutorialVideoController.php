@@ -12,7 +12,12 @@ class TutorialVideoController extends Controller
     public function index(Request $request): JsonResponse
     {
         $videos = TutorialVideo::query()
-            ->when($request->gender, fn ($q) => $q->where('gender_target', $request->gender)->orWhere('gender_target', 'both'))
+            // The unisex clause must be grouped, otherwise it escapes the
+            // muscle-group filter below because OR binds looser than AND.
+            ->when($request->gender, fn ($q) => $q->where(
+                fn ($sub) => $sub->where('gender_target', $request->gender)
+                    ->orWhere('gender_target', 'both')
+            ))
             ->when($request->muscle_group, fn ($q) => $q->where('muscle_group', $request->muscle_group))
             ->orderBy('created_at', 'desc')
             ->paginate(20);

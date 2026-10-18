@@ -8,7 +8,7 @@ use Illuminate\Support\Carbon;
 
 class WorkoutChartWidget extends ChartWidget
 {
-    protected ?string $heading = 'Daily Workouts Completed (Last 7 Days)';
+    protected ?string $heading = 'Workouts completed, last 7 days';
 
     protected static ?int $sort = 2;
 
@@ -26,12 +26,13 @@ class WorkoutChartWidget extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'Workouts Completed',
+                    'label' => 'Workouts completed',
                     'data' => $data,
-                    'borderColor' => '#10B981',
-                    'backgroundColor' => 'rgba(16, 185, 129, 0.15)',
+                    'borderColor' => '#c6f24e',
+                    'backgroundColor' => 'rgba(198, 242, 78, 0.12)',
                     'fill' => true,
-                    'tension' => 0.4,
+                    'tension' => 0.35,
+                    'pointRadius' => 2,
                 ],
             ],
             'labels' => $labels,
