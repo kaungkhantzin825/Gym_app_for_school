@@ -102,6 +102,7 @@ class AdminResources
                     ['key' => 'user.name', 'label' => 'Member', 'type' => 'relation'],
                     ['key' => 'started_at', 'label' => 'Started', 'type' => 'datetime'],
                     ['key' => 'total_volume', 'label' => 'Volume', 'type' => 'number', 'suffix' => ' kg'],
+                    ['key' => 'total_reps', 'label' => 'Reps', 'type' => 'number'],
                     ['key' => 'total_duration_minutes', 'label' => 'Duration', 'type' => 'number', 'suffix' => ' min'],
                 ],
                 'fields' => [
@@ -109,6 +110,7 @@ class AdminResources
                     ['key' => 'started_at', 'label' => 'Started at', 'type' => 'datetime', 'rules' => ['nullable', 'date']],
                     ['key' => 'ended_at', 'label' => 'Ended at', 'type' => 'datetime', 'rules' => ['nullable', 'date', 'after_or_equal:started_at']],
                     ['key' => 'total_volume', 'label' => 'Total volume', 'type' => 'number', 'step' => '0.01', 'suffix' => 'kg', 'rules' => ['nullable', 'numeric', 'min:0']],
+                    ['key' => 'total_reps', 'label' => 'Total reps', 'type' => 'number', 'rules' => ['nullable', 'integer', 'min:0']],
                     ['key' => 'total_duration_minutes', 'label' => 'Duration', 'type' => 'number', 'suffix' => 'min', 'rules' => ['nullable', 'integer', 'min:0']],
                     ['key' => 'notes', 'label' => 'Notes', 'type' => 'textarea', 'rules' => ['nullable', 'string', 'max:2000']],
                 ],

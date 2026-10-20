@@ -80,6 +80,53 @@ class WorkoutApiTest extends TestCase
         ]);
     }
 
+    public function test_store_persists_the_rep_count(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user, 'sanctum')->postJson('/api/v1/workouts', [
+            'name' => 'Bench press',
+            'started_at' => now()->subMinutes(20)->toIso8601String(),
+            'ended_at' => now()->toIso8601String(),
+            'total_duration_minutes' => 20,
+            'total_reps' => 60,
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('total_reps', 60);
+
+        $this->assertDatabaseHas('workouts', [
+            'user_id' => $user->id,
+            'name' => 'Bench press',
+            'total_reps' => 60,
+        ]);
+    }
+
+    public function test_update_can_change_the_rep_count(): void
+    {
+        $user = User::factory()->create();
+        $workout = Workout::factory()->for($user)->create(['total_reps' => 30]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->putJson("/api/v1/workouts/{$workout->id}", ['total_reps' => 75]);
+
+        $response->assertOk()->assertJsonPath('total_reps', 75);
+        $this->assertSame(75, $workout->fresh()->total_reps);
+    }
+
+    public function test_a_negative_rep_count_is_rejected(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user, 'sanctum')
+            ->postJson('/api/v1/workouts', [
+                'name' => 'Bench press',
+                'total_reps' => -5,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('total_reps');
+    }
+
     public function test_store_validates_the_payload(): void
     {
         $user = User::factory()->create();

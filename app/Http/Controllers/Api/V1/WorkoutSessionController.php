@@ -41,6 +41,7 @@ class WorkoutSessionController extends Controller
             ]);
 
             $totalVolume = 0.0;
+            $totalReps = 0;
 
             foreach ($data['exercises'] as $exerciseData) {
                 $sets = $exerciseData['sets'];
@@ -65,10 +66,16 @@ class WorkoutSessionController extends Controller
                     ]);
 
                     $totalVolume += ($set['reps'] ?? 0) * ($set['weight'] ?? 0);
+                    $totalReps += $set['reps'] ?? 0;
                 }
             }
 
-            $workout->update(['total_volume' => round($totalVolume, 2)]);
+            $workout->update([
+                'total_volume' => round($totalVolume, 2),
+                // Stored on the session too, so history and reports can read
+                // it without summing every set.
+                'total_reps' => $totalReps > 0 ? $totalReps : null,
+            ]);
 
             return $workout;
         });

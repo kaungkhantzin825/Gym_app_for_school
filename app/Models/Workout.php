@@ -21,6 +21,7 @@ class Workout extends Model
         'ended_at',
         'notes',
         'total_volume',
+        'total_reps',
         'total_duration_minutes',
     ];
 
@@ -30,6 +31,7 @@ class Workout extends Model
             'started_at' => 'datetime',
             'ended_at' => 'datetime',
             'total_volume' => 'decimal:2',
+            'total_reps' => 'integer',
         ];
     }
 

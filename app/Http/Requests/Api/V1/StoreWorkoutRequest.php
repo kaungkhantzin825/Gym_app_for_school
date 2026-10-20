@@ -22,6 +22,7 @@ class StoreWorkoutRequest extends FormRequest
             'ended_at' => ['nullable', 'date', 'after:started_at'],
             'notes' => ['nullable', 'string'],
             'total_volume' => ['nullable', 'numeric', 'min:0'],
+            'total_reps' => ['nullable', 'integer', 'min:0', 'max:100000'],
             'total_duration_minutes' => ['nullable', 'integer', 'min:0'],
         ];
     }

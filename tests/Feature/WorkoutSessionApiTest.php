@@ -65,6 +65,8 @@ class WorkoutSessionApiTest extends TestCase
         $workout = Workout::where('user_id', $user->id)->firstOrFail();
         $this->assertSame(42, $workout->total_duration_minutes);
         $this->assertSame(3, $workout->workoutSets()->count());
+        // Stored on the session as well, so reports do not have to sum sets.
+        $this->assertSame(23, $workout->total_reps);
 
         $this->assertDatabaseCount('workouts', 1);
         $this->assertDatabaseCount('exercises', 2);
