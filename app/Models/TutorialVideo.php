@@ -18,5 +18,15 @@ class TutorialVideo extends Model
         'thumbnail_url',
         'gender_target',
         'muscle_group',
+        'focus_areas',
+        'equipment',
+        'how_to_do',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'focus_areas' => 'array',
+        ];
+    }
 }

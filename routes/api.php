@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\AiWorkoutController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ExerciseController;
 use App\Http\Controllers\Api\V1\FoodLogController;
+use App\Http\Controllers\Api\V1\GuestProfileController;
 use App\Http\Controllers\Api\V1\MealController;
 use App\Http\Controllers\Api\V1\PhotoGalleryController;
 use App\Http\Controllers\Api\V1\ProfileController;
@@ -31,6 +32,10 @@ Route::prefix('v1')->group(function () {
 
     // Public tutorial videos
     Route::apiResource('tutorial-videos', TutorialVideoController::class)->only(['index', 'show']);
+
+    // Guest profile (for non-logged in users by device/app_id)
+    Route::post('/guest/profile', [GuestProfileController::class, 'store']);
+    Route::get('/guest/profile/{app_id}', [GuestProfileController::class, 'show']);
 
     // Authenticated routes
     Route::middleware('auth:sanctum')->group(function () {
