@@ -56,6 +56,7 @@ class ProfileController extends Controller
             'message' => 'Profile photo uploaded successfully',
             'profile_photo' => $photoPath,
             'profile_photo_url' => $this->profilePhotoUrl($photoPath),
+            'user' => $user->fresh(),
         ], 201);
     }
 

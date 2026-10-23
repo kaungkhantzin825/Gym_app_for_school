@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 
 #[Fillable(['name', 'email', 'phone', 'profile_photo', 'password', 'role', 'fcm_token', 'device_type'])]
@@ -18,6 +19,23 @@ class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
+
+    protected $appends = [
+        'profile_photo_url',
+    ];
+
+    public function getProfilePhotoUrlAttribute(): ?string
+    {
+        if (! $this->profile_photo) {
+            return null;
+        }
+
+        if (str_starts_with($this->profile_photo, 'http://') || str_starts_with($this->profile_photo, 'https://')) {
+            return $this->profile_photo;
+        }
+
+        return url(Storage::disk('public')->url($this->profile_photo));
+    }
 
     /**
      * Get the attributes that should be cast.
