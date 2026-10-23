@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => 'mistral',
+    'default' => env('AI_DEFAULT_PROVIDER', 'gemini'),
     'default_for_images' => 'gemini',
     'default_for_audio' => 'openai',
     'default_for_transcription' => 'openai',
@@ -95,6 +95,11 @@ return [
         'gemini' => [
             'driver' => 'gemini',
             'key' => env('GEMINI_API_KEY'),
+            'models' => [
+                'text' => [
+                    'default' => env('GEMINI_MODEL', 'gemini-1.5-flash'),
+                ],
+            ],
         ],
 
         'groq' => [

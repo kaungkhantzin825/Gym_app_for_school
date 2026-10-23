@@ -123,5 +123,8 @@ class DatabaseSeeder extends Seeder
         // App settings
         AppSetting::setValue('about', 'INTI Gym APP - Your AI-powered fitness companion.');
         AppSetting::setValue('privacy_policy', 'Your privacy is important to us.');
+        AppSetting::setValue('ai_primary_provider', 'gemini');
+        AppSetting::setValue('gemini_api_keys', env('GEMINI_API_KEY', ''));
+        AppSetting::setValue('mistral_api_keys', env('MISTRAL_API_KEY', ''));
     }
 }

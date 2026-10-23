@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AdminAiSettingsController;
 use App\Http\Controllers\Api\V1\AiCoachController;
 use App\Http\Controllers\Api\V1\AiMealController;
 use App\Http\Controllers\Api\V1\AiWorkoutController;
@@ -43,6 +44,12 @@ Route::prefix('v1')->group(function () {
     Route::post('/bookmarks/toggle', [BookmarkedExerciseController::class, 'toggle']);
     Route::post('/bookmarks', [BookmarkedExerciseController::class, 'toggle']);
     Route::delete('/bookmarks/{id}', [BookmarkedExerciseController::class, 'destroy']);
+
+    // Admin AI Settings (Multi-key failover management)
+    Route::get('/admin/ai-settings', [AdminAiSettingsController::class, 'index']);
+    Route::post('/admin/ai-settings', [AdminAiSettingsController::class, 'update']);
+    Route::put('/admin/ai-settings', [AdminAiSettingsController::class, 'update']);
+    Route::post('/admin/ai-settings/test', [AdminAiSettingsController::class, 'test']);
 
     // Authenticated routes
     Route::middleware('auth:sanctum')->group(function () {

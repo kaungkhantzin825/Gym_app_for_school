@@ -17,7 +17,21 @@ class FitnessCoach implements Agent, Conversational, HasTools
 {
     use Promptable, RemembersConversations;
 
+    protected ?string $customProvider = null;
+
     public function __construct(public User $user) {}
+
+    public function setProvider(string $provider): static
+    {
+        $this->customProvider = $provider;
+
+        return $this;
+    }
+
+    public function provider(): string
+    {
+        return $this->customProvider ?? \App\Services\AiKeyRotatorService::getPrimaryProvider();
+    }
 
     /**
      * Get the instructions that the agent should follow.

@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Ai\Agents\MealAnalyzer;
 use App\Http\Controllers\Controller;
+use App\Services\AiKeyRotatorService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Ai\Files\Image;
-use Laravel\Ai\Exceptions\RateLimitedException;
 
 class AiMealController extends Controller
 {
@@ -24,22 +25,20 @@ class AiMealController extends Controller
         $agent = new MealAnalyzer;
 
         try {
-            $response = $agent->prompt(
-                'Analyze this meal photo and identify all food items with their nutritional estimates.',
-                [Image::fromStorage($imagePath, 'public')],
-            );
-        } catch (RateLimitedException $exception) {
-            Storage::disk('public')->delete($imagePath);
+            $response = AiKeyRotatorService::runWithRotation(function (string $provider, string $key) use ($agent, $imagePath) {
+                $agent->setProvider($provider);
 
-            return response()->json([
-                'message' => 'Meal scan is temporarily unavailable because the AI provider is rate limited. Please retry shortly.',
-                'provider' => 'mistral',
-            ], 429);
+                return $agent->prompt(
+                    'Analyze this meal photo and identify all food items with their nutritional estimates.',
+                    [Image::fromStorage($imagePath, 'public')],
+                );
+            });
         } catch (\Throwable $exception) {
             Storage::disk('public')->delete($imagePath);
+            Log::warning("Meal scan failed across all keys: {$exception->getMessage()}");
 
             return response()->json([
-                'message' => 'Failed to analyze meal image: ' . $exception->getMessage(),
+                'message' => 'Failed to analyze meal image: '.$exception->getMessage(),
             ], 500);
         }
 
@@ -48,12 +47,21 @@ class AiMealController extends Controller
         if (empty($analysisPayload) || empty($analysisPayload['foods'])) {
             return response()->json([
                 'message' => 'Could not identify any food items in the image. Please try a clearer photo.',
+                'image_url' => Storage::disk('public')->url($imagePath),
+                'image_path' => $imagePath,
             ], 422);
         }
 
         return response()->json([
-            'analysis' => $analysisPayload,
+            'foods' => $analysisPayload['foods'],
+            'meal_name' => $analysisPayload['meal_name'] ?? 'Analyzed Meal',
+            'confidence' => $analysisPayload['confidence'] ?? 0.8,
+            'image_url' => Storage::disk('public')->url($imagePath),
             'image_path' => $imagePath,
+            'total_calories' => array_sum(array_column($analysisPayload['foods'], 'calories')),
+            'total_protein' => array_sum(array_column($analysisPayload['foods'], 'protein')),
+            'total_carbs' => array_sum(array_column($analysisPayload['foods'], 'carbs')),
+            'total_fat' => array_sum(array_column($analysisPayload['foods'], 'fat')),
         ]);
     }
 

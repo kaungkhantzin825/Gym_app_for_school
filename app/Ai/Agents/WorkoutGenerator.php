@@ -14,7 +14,16 @@ class WorkoutGenerator implements Agent, HasStructuredOutput
 {
     use Promptable;
 
+    protected ?string $customProvider = null;
+
     public function __construct(public User $user) {}
+
+    public function setProvider(string $provider): static
+    {
+        $this->customProvider = $provider;
+
+        return $this;
+    }
 
     /**
      * Get the instructions that the agent should follow.
@@ -58,11 +67,11 @@ class WorkoutGenerator implements Agent, HasStructuredOutput
     }
 
     /**
-     * Force this agent to use Mistral.
+     * AI Provider (defaults to configured primary provider or gemini).
      */
     public function provider(): string
     {
-        return 'mistral';
+        return $this->customProvider ?? \App\Services\AiKeyRotatorService::getPrimaryProvider();
     }
 
     /**

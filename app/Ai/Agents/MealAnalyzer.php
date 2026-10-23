@@ -12,14 +12,23 @@ class MealAnalyzer implements Agent, HasStructuredOutput
 {
     use Promptable;
 
-    public function provider(): string
+    protected ?string $customProvider = null;
+
+    public function setProvider(string $provider): static
     {
-        return 'mistral';
+        $this->customProvider = $provider;
+
+        return $this;
     }
 
-    public function model(): string
+    public function provider(): string
     {
-        return 'pixtral-12b-2409';
+        return $this->customProvider ?? \App\Services\AiKeyRotatorService::getPrimaryProvider();
+    }
+
+    public function model(): ?string
+    {
+        return $this->provider() === 'mistral' ? 'pixtral-12b-2409' : null;
     }
 
     /**
