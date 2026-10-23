@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\AiMealController;
 use App\Http\Controllers\Api\V1\AiWorkoutController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BookmarkedExerciseController;
+use App\Http\Controllers\Api\V1\CameraSessionController;
 use App\Http\Controllers\Api\V1\ExerciseController;
 use App\Http\Controllers\Api\V1\FoodLogController;
 use App\Http\Controllers\Api\V1\GuestProfileController;
@@ -93,6 +94,11 @@ Route::prefix('v1')->group(function () {
 
         // Progress analytics derived from the saved sets.
         Route::get('/progress', [ProgressController::class, 'index']);
+
+        // Camera-trainer sessions, synced from the phone after recording.
+        Route::get('/camera-sessions/stats', [CameraSessionController::class, 'stats']);
+        Route::apiResource('camera-sessions', CameraSessionController::class)
+            ->only(['index', 'store']);
         Route::post('/workouts/{workout}/sets', [WorkoutSetController::class, 'store']);
         Route::delete('/workouts/{workout}/sets/{workoutSet}', [WorkoutSetController::class, 'destroy']);
 

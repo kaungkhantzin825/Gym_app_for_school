@@ -121,6 +121,11 @@ class User extends Authenticatable
         return $this->hasMany(Workout::class);
     }
 
+    public function cameraSessions(): HasMany
+    {
+        return $this->hasMany(CameraSession::class);
+    }
+
     public function weightLogs(): HasMany
     {
         return $this->hasMany(WeightLog::class);

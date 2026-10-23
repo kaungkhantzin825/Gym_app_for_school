@@ -886,6 +886,93 @@ Delete a conversation, its messages and any images it attached.
 
 ---
 
+### 13. Camera Trainer Sessions
+
+The camera trainer counts reps on the device (ML Kit pose detection). Every
+finished session is written to SQLite first and uploaded here when there is a
+connection, so training works offline.
+
+`client_id` is generated on the phone and is the idempotency key: replaying the
+same session after a dropped response updates the existing row instead of
+creating a duplicate.
+
+#### POST /camera-sessions
+🔒 **Requires Authentication**
+
+**Body:**
+```json
+{
+    "client_id": "1761207600123456-9f3c1a7b",
+    "exercise_type": "strength",
+    "exercise_name": "Push-Up",
+    "started_at": "2026-10-23T18:30:00+00:00",
+    "ended_at": "2026-10-23T18:42:00+00:00",
+    "duration_seconds": 720,
+    "sets_count": 3,
+    "total_reps": 24,
+    "avg_form_score": 82,
+    "sets": [
+        { "set_number": 1, "reps": 9, "form_score": 80 },
+        { "set_number": 2, "reps": 8, "form_score": 84, "rest_time_seconds": 62 }
+    ],
+    "source": "pose_tracker"
+}
+```
+
+`exercise_type` is one of `strength`, `cardio`, `flexibility`, `balance`.
+`avg_form_score` is 0-100 and optional (absent when the camera never saw the
+body clearly). `rest_time_seconds` on a set is the rest that preceded it.
+
+**Response (201 created / 200 updated):**
+```json
+{
+    "message": "Camera session saved.",
+    "session": {
+        "id": 12,
+        "user_id": 3,
+        "client_id": "1761207600123456-9f3c1a7b",
+        "exercise_type": "strength",
+        "exercise_name": "Push-Up",
+        "started_at": "2026-10-23T18:30:00.000000Z",
+        "ended_at": "2026-10-23T18:42:00.000000Z",
+        "duration_seconds": 720,
+        "sets_count": 3,
+        "total_reps": 24,
+        "avg_form_score": 82,
+        "sets": [ ... ],
+        "source": "pose_tracker",
+        "created_at": "2026-10-23T18:42:03.000000Z",
+        "updated_at": "2026-10-23T18:42:03.000000Z"
+    }
+}
+```
+
+#### GET /camera-sessions
+🔒 **Requires Authentication**
+
+Paginated, newest first, 30 per page.
+
+#### GET /camera-sessions/stats
+🔒 **Requires Authentication**
+
+```json
+{
+    "totals": { "sessions": 14, "reps": 312, "seconds": 8400 },
+    "this_week": 3,
+    "personal_bests": [
+        {
+            "exercise_name": "Push-Up",
+            "best_reps": 34,
+            "best_form_score": 91,
+            "sessions": 6
+        }
+    ]
+}
+```
+
+
+---
+
 ## Error Responses
 
 All errors follow Laravel's standard format:
