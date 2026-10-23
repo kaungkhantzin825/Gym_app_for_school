@@ -97,7 +97,7 @@ class AiWorkoutControllerTest extends TestCase
             'exercises' => [[
                 'exercise_name' => 'Bench Press',
                 'exercise_type' => 'strength',
-                'exercise_tutorial_url' => url('/storage/exercise_tutorials/1.gif'),
+                'exercise_tutorial_url' => url('/api/v1/media/exercise_tutorials/1.gif'),
             ]],
         ]);
     }
@@ -136,7 +136,7 @@ class AiWorkoutControllerTest extends TestCase
             'exercises' => [[
                 'exercise_name' => 'Walking',
                 'exercise_type' => 'cardio',
-                'exercise_tutorial_url' => url('/storage/exercise_tutorials/1.gif'),
+                'exercise_tutorial_url' => url('/api/v1/media/exercise_tutorials/1.gif'),
             ]],
         ]);
 
@@ -153,6 +153,58 @@ class AiWorkoutControllerTest extends TestCase
             'total_estimated_calories',
             'notes',
         ]);
+    }
+
+    public function test_it_leaves_an_external_tutorial_url_untouched(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        // A CDN that happens to use a /storage/ path must not be rewritten
+        // onto our own media route.
+        Exercise::factory()->for($admin)->create([
+            'exercise_name' => 'Bench Press',
+            'exercise_type' => 'strength',
+            'exercise_tutorial_url' => 'https://cdn.example.com/storage/demo/1.gif',
+            'exercise_time' => now(),
+        ]);
+
+        $user = User::factory()->create();
+
+        Ai::fakeAgent(WorkoutGenerator::class, [function (): array {
+            return [
+                'workout_name' => 'Upper Body Strength',
+                'estimated_duration_minutes' => 45,
+                'exercises' => [[
+                    'exercise_name' => 'Bench Press',
+                    'exercise_type' => 'strength',
+                    'sets' => 3,
+                    'reps' => 10,
+                ]],
+                'total_estimated_calories' => 240,
+            ];
+        }]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/v1/ai/workout/generate', $this->workoutRequestPayload());
+
+        $response->assertOk()->assertJsonPath(
+            'exercises.0.exercise_tutorial_url',
+            'https://cdn.example.com/storage/demo/1.gif',
+        );
+    }
+
+    public function test_the_media_route_serves_an_exercise_tutorial(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('exercise_tutorials/1.gif', 'gif-bytes');
+
+        $this->get('/api/v1/media/exercise_tutorials/1.gif')
+            ->assertOk();
+    }
+
+    public function test_the_media_route_rejects_an_unknown_directory(): void
+    {
+        $this->get('/api/v1/media/secrets/1.gif')->assertNotFound();
     }
 
     public function test_it_requires_admin_managed_exercises_with_tutorial_urls(): void

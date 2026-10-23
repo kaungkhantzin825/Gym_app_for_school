@@ -202,14 +202,33 @@ class AiWorkoutController extends Controller
 
     private function normalizeExerciseTutorialUrl(?string $exerciseTutorialUrl): ?string
     {
-        if ($exerciseTutorialUrl === null || $exerciseTutorialUrl === '') {
+        if ($exerciseTutorialUrl === null || trim($exerciseTutorialUrl) === '') {
             return null;
         }
 
-        if (str_starts_with($exerciseTutorialUrl, 'http://') || str_starts_with($exerciseTutorialUrl, 'https://')) {
-            return $exerciseTutorialUrl;
+        $url = trim($exerciseTutorialUrl);
+        $path = parse_url($url, PHP_URL_PATH);
+        $host = parse_url($url, PHP_URL_HOST);
+
+        // `/storage/*` answers 403 on the live host (the public symlink is not
+        // followable), so a tutorial GIF served from there renders as a broken
+        // image - which is why the app used to fall back to printing the raw
+        // URL. The media route reads the same file straight off the disk.
+        $isOurs = $host === null
+            || in_array($host, ['localhost', '127.0.0.1'], true)
+            || $host === request()->getHost()
+            || $host === parse_url((string) config('app.url'), PHP_URL_HOST);
+
+        if ($isOurs
+            && is_string($path)
+            && preg_match('#^/storage/([A-Za-z0-9._-]+)/([A-Za-z0-9._-]+)$#', $path, $matches) === 1) {
+            return url('/api/v1/media/'.$matches[1].'/'.$matches[2]);
         }
 
-        return url($exerciseTutorialUrl);
+        if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
+            return $url;
+        }
+
+        return url($url);
     }
 }

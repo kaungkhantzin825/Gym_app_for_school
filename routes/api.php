@@ -47,6 +47,7 @@ Route::prefix('v1')->group(function () {
             'coach-images',
             'meal-scans',
             'meals',
+            'exercise_tutorials',
         ])
         ->where('filename', '[A-Za-z0-9._-]+');
 

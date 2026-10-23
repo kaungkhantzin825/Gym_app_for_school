@@ -29,6 +29,7 @@ class MediaController extends Controller
         'coach-images',
         'meal-scans',
         'meals',
+        'exercise_tutorials',
     ];
 
     public function show(string $directory, string $filename): StreamedResponse
