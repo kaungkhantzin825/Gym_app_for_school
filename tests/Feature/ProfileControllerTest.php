@@ -100,8 +100,43 @@ class ProfileControllerTest extends TestCase
         $response->assertOk()->assertJson([
             'name' => 'Profile Name',
             'profile_photo' => 'profile-photos/example.jpg',
-            'profile_photo_url' => url('/storage/profile-photos/example.jpg'),
+            // Served by PHP, not by the public/storage symlink: that path
+            // answers 403 on the live host, which is why avatars broke.
+            'profile_photo_url' => url('/api/v1/media/profile-photos/example.jpg'),
             'goal' => 'maintain',
         ]);
+    }
+
+    public function test_the_photo_url_does_not_depend_on_the_public_storage_symlink(): void
+    {
+        $user = User::factory()->create([
+            'profile_photo' => 'profile-photos/example.jpg',
+        ]);
+
+        $this->assertStringNotContainsString(
+            '/storage/',
+            $user->profile_photo_url,
+            'The avatar must be served by the media route; /storage 403s on the live host.',
+        );
+    }
+
+    public function test_the_media_route_serves_an_uploaded_photo(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $path = UploadedFile::fake()->image('avatar.jpg')->store('profile-photos', 'public');
+
+        $this->get('/api/v1/media/profile-photos/'.basename($path))
+            ->assertOk();
+    }
+
+    public function test_the_media_route_does_not_serve_outside_its_directories(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('secrets.txt', 'private');
+
+        $this->get('/api/v1/media/secrets/secrets.txt')->assertNotFound();
+        $this->get('/api/v1/media/profile-photos/..%2F..%2F.env')->assertNotFound();
     }
 }

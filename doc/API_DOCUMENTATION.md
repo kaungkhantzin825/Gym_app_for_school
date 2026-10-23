@@ -5,6 +5,25 @@
 http://localhost:8000/api/v1
 ```
 
+## Uploaded media
+
+Avatars and progress photos are **streamed by PHP**, not served from `/storage`:
+
+```
+GET /api/v1/media/{directory}/{filename}      # public
+```
+
+`directory` is one of `profile-photos` or `gallery`. Every `profile_photo_url`
+in a response already points here, so clients never need to build the URL
+themselves.
+
+> `/storage/...` depends on `php artisan storage:link` and on the web server
+> being allowed to follow that symlink. On a host where either is missing the
+> whole prefix answers `403`, which is why photo URLs are not built from
+> `Storage::disk('public')->url()` any more.
+
+---
+
 ## Authentication
 All authenticated endpoints require a Bearer token in the Authorization header:
 ```

@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\ExerciseController;
 use App\Http\Controllers\Api\V1\FoodLogController;
 use App\Http\Controllers\Api\V1\GuestProfileController;
 use App\Http\Controllers\Api\V1\MealController;
+use App\Http\Controllers\Api\V1\MediaController;
 use App\Http\Controllers\Api\V1\PhotoGalleryController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\ProgressController;
@@ -35,6 +36,13 @@ Route::prefix('v1')->group(function () {
     // Public tutorial videos
     Route::apiResource('tutorial-videos', TutorialVideoController::class)->only(['index', 'show']);
 
+    // Uploaded images (avatars, progress photos). Streamed by PHP so the app
+    // does not depend on the public/storage symlink existing or being
+    // followable by the web server.
+    Route::get('/media/{directory}/{filename}', [MediaController::class, 'show'])
+        ->whereIn('directory', ['profile-photos', 'gallery'])
+        ->where('filename', '[A-Za-z0-9._-]+');
+
     // Guest profile (for non-logged in users by device/app_id)
     Route::post('/guest/profile', [GuestProfileController::class, 'store']);
     Route::get('/guest/profile/{app_id}', [GuestProfileController::class, 'show']);
@@ -45,14 +53,20 @@ Route::prefix('v1')->group(function () {
     Route::post('/bookmarks', [BookmarkedExerciseController::class, 'toggle']);
     Route::delete('/bookmarks/{id}', [BookmarkedExerciseController::class, 'destroy']);
 
-    // Admin AI Settings (Multi-key failover management)
-    Route::get('/admin/ai-settings', [AdminAiSettingsController::class, 'index']);
-    Route::post('/admin/ai-settings', [AdminAiSettingsController::class, 'update']);
-    Route::put('/admin/ai-settings', [AdminAiSettingsController::class, 'update']);
-    Route::post('/admin/ai-settings/test', [AdminAiSettingsController::class, 'test']);
-
     // Authenticated routes
     Route::middleware('auth:sanctum')->group(function () {
+        // Admin AI Settings (Multi-key failover management)
+        //
+        // These read and write the live Gemini/Mistral keys, and `index` will
+        // return them unmasked when `?include_raw=1` is passed, so they belong
+        // behind BOTH the token and the admin gate - never in the public block.
+        Route::middleware('admin')->prefix('admin/ai-settings')->group(function (): void {
+            Route::get('/', [AdminAiSettingsController::class, 'index']);
+            Route::post('/', [AdminAiSettingsController::class, 'update']);
+            Route::put('/', [AdminAiSettingsController::class, 'update']);
+            Route::post('/test', [AdminAiSettingsController::class, 'test']);
+        });
+
         // Auth
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/user', [AuthController::class, 'user']);
@@ -68,7 +82,6 @@ Route::prefix('v1')->group(function () {
         Route::post('/meals/{meal}/food-logs', [FoodLogController::class, 'store']);
         Route::delete('/meals/{meal}/food-logs/{foodLog}', [FoodLogController::class, 'destroy']);
 
-        
         Route::apiResource('exercises', ExerciseController::class);
 
         // Workouts & Sets
