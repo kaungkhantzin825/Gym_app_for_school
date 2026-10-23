@@ -781,32 +781,108 @@ The AI is constrained to the admin-managed exercise catalog. Each returned exerc
 #### POST /ai/coach/chat
 🔒 **Requires Authentication**
 
-Chat with the AI fitness coach. Supports conversation history.
+Chat with the AI fitness coach. The coach can read the user's profile, meal history, exercise
+history and strength progress through tools, and a compact profile summary is included in every
+prompt so the first reply is already personal.
 
-**Request Body:**
+**Request Body (JSON, or multipart/form-data when attaching a photo):**
 ```json
 {
-    "message": "What should I eat after my workout?",
-    "conversation_id": "optional-uuid-for-continuing-conversation"
+    "message": "Am I getting stronger on bench?",
+    "conversation_id": "0192f0c4-... (optional, continues an existing chat)"
 }
 ```
+
+- `message` is required unless an `image` file is sent.
+- `image` (multipart only): optional photo, max 10MB, stored under `coach-images`.
 
 **Response (200):**
 ```json
 {
-    "message": "After your workout, aim to eat within 30-60 minutes...",
-    "conversation_id": "uuid-of-conversation"
+    "message": "Your bench estimated 1RM went from 78 kg to 84 kg in six weeks...",
+    "conversation_id": "0192f0c4-...",
+    "title": "Bench progress review",
+    "usage": { "prompt_tokens": 812, "completion_tokens": 190 }
 }
 ```
+
+`conversation_id` is the id to send on the next turn. If the AI provider is unavailable the endpoint
+still returns 200 with a short fallback message and the **same** `conversation_id` it was given, so
+the chat can continue later.
+
+**Error (404):** the `conversation_id` belongs to another account.
 
 ---
 
 #### GET /ai/coach/conversations
 🔒 **Requires Authentication**
 
-List previous coaching conversations.
+List the user's saved conversations, most recently active first.
 
-**Response (200):** Paginated list of conversations.
+**Response (200):**
+```json
+{
+    "data": [
+        {
+            "id": "0192f0c4-...",
+            "title": "Bench progress review",
+            "preview": "Your bench estimated 1RM went from 78 kg...",
+            "messages_count": 6,
+            "created_at": "2026-10-20T08:00:00.000000Z",
+            "updated_at": "2026-10-23T06:10:00.000000Z"
+        }
+    ],
+    "meta": { "current_page": 1, "last_page": 1, "total": 1 }
+}
+```
+
+---
+
+#### GET /ai/coach/conversations/{id}
+🔒 **Requires Authentication**
+
+Reopen one conversation. Messages are returned oldest first; `image_url` is present on a user
+message that had a photo attached, and points at `/media/coach-images/...`.
+
+**Response (200):**
+```json
+{
+    "id": "0192f0c4-...",
+    "title": "Form check",
+    "messages": [
+        {
+            "id": "0192f0c5-...",
+            "role": "user",
+            "content": "How is my setup?",
+            "image_url": "https://host/api/v1/media/coach-images/abc.jpg",
+            "created_at": "2026-10-23T06:00:00.000000Z"
+        },
+        {
+            "id": "0192f0c6-...",
+            "role": "assistant",
+            "content": "Bar is a little forward.",
+            "image_url": null,
+            "created_at": "2026-10-23T06:00:05.000000Z"
+        }
+    ],
+    "updated_at": "2026-10-23T06:00:05.000000Z"
+}
+```
+
+**Error (404):** not the user's conversation.
+
+---
+
+#### DELETE /ai/coach/conversations/{id}
+🔒 **Requires Authentication**
+
+Delete a conversation, its messages and any images it attached.
+
+**Response (200):**
+```json
+{ "message": "Conversation deleted." }
+```
+
 
 ---
 

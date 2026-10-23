@@ -40,7 +40,7 @@ Route::prefix('v1')->group(function () {
     // does not depend on the public/storage symlink existing or being
     // followable by the web server.
     Route::get('/media/{directory}/{filename}', [MediaController::class, 'show'])
-        ->whereIn('directory', ['profile-photos', 'gallery'])
+        ->whereIn('directory', ['profile-photos', 'gallery', 'coach-images'])
         ->where('filename', '[A-Za-z0-9._-]+');
 
     // Guest profile (for non-logged in users by device/app_id)
@@ -111,6 +111,8 @@ Route::prefix('v1')->group(function () {
             Route::post('/workout/generate', [AiWorkoutController::class, 'generate']);
             Route::post('/coach/chat', [AiCoachController::class, 'chat']);
             Route::get('/coach/conversations', [AiCoachController::class, 'conversations']);
+            Route::get('/coach/conversations/{conversation}', [AiCoachController::class, 'show']);
+            Route::delete('/coach/conversations/{conversation}', [AiCoachController::class, 'destroy']);
         });
     });
 });
