@@ -114,6 +114,9 @@ class DatabaseSeeder extends Seeder
         // Tutorial videos
         $this->call(TutorialVideoSeeder::class);
 
+        // Bookmarked exercises
+        $this->call(BookmarkSeeder::class);
+
         // Admin exercise catalog
         $this->call(AdminExerciseSeeder::class);
 

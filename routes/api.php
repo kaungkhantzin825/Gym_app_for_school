@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AiCoachController;
 use App\Http\Controllers\Api\V1\AiMealController;
 use App\Http\Controllers\Api\V1\AiWorkoutController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\BookmarkedExerciseController;
 use App\Http\Controllers\Api\V1\ExerciseController;
 use App\Http\Controllers\Api\V1\FoodLogController;
 use App\Http\Controllers\Api\V1\GuestProfileController;
@@ -36,6 +37,12 @@ Route::prefix('v1')->group(function () {
     // Guest profile (for non-logged in users by device/app_id)
     Route::post('/guest/profile', [GuestProfileController::class, 'store']);
     Route::get('/guest/profile/{app_id}', [GuestProfileController::class, 'show']);
+
+    // Bookmarked / Saved exercises (public with app_id, or authenticated)
+    Route::get('/bookmarks', [BookmarkedExerciseController::class, 'index']);
+    Route::post('/bookmarks/toggle', [BookmarkedExerciseController::class, 'toggle']);
+    Route::post('/bookmarks', [BookmarkedExerciseController::class, 'toggle']);
+    Route::delete('/bookmarks/{id}', [BookmarkedExerciseController::class, 'destroy']);
 
     // Authenticated routes
     Route::middleware('auth:sanctum')->group(function () {
