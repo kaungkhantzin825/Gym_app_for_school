@@ -57,6 +57,76 @@ class WorkoutApiTest extends TestCase
             ->assertJsonPath('data.1.id', $older->id);
     }
 
+    public function test_index_can_be_limited_to_a_date_range(): void
+    {
+        $user = User::factory()->create();
+
+        $inside = Workout::factory()->for($user)->create([
+            'started_at' => '2026-10-15 09:00:00',
+        ]);
+        // Boundaries are whole days, so both edges of the range must be
+        // inclusive. Without endOfDay() a session logged at 23:00 on the 31st
+        // is silently dropped from the calendar.
+        $firstMinute = Workout::factory()->for($user)->create([
+            'started_at' => '2026-10-01 00:05:00',
+        ]);
+        $lastMinute = Workout::factory()->for($user)->create([
+            'started_at' => '2026-10-31 23:00:00',
+        ]);
+        $before = Workout::factory()->for($user)->create([
+            'started_at' => '2026-09-30 23:00:00',
+        ]);
+        $after = Workout::factory()->for($user)->create([
+            'started_at' => '2026-11-01 00:30:00',
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')->getJson(
+            '/api/v1/workouts?from=2026-10-01&to=2026-10-31'
+        );
+
+        $response->assertOk()->assertJsonCount(3, 'data');
+
+        $ids = collect($response->json('data'))->pluck('id');
+        $this->assertContains($inside->id, $ids);
+        $this->assertContains($firstMinute->id, $ids);
+        $this->assertContains($lastMinute->id, $ids);
+        $this->assertNotContains($before->id, $ids);
+        $this->assertNotContains($after->id, $ids);
+    }
+
+    public function test_index_accepts_a_larger_page_for_the_calendar(): void
+    {
+        $user = User::factory()->create();
+
+        foreach (range(1, 25) as $i) {
+            Workout::factory()->for($user)->create([
+                'started_at' => now()->subDays($i),
+            ]);
+        }
+
+        // The calendar fetches a whole month; the default 20 would cut it off.
+        $this->actingAs($user, 'sanctum')
+            ->getJson('/api/v1/workouts?per_page=100')
+            ->assertOk()
+            ->assertJsonCount(25, 'data')
+            ->assertJsonPath('per_page', 100);
+    }
+
+    public function test_index_rejects_a_nonsense_date_or_page_size(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user, 'sanctum')
+            ->getJson('/api/v1/workouts?from=not-a-date')
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('from');
+
+        $this->actingAs($user, 'sanctum')
+            ->getJson('/api/v1/workouts?per_page=5000')
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('per_page');
+    }
+
     public function test_store_creates_a_workout_for_the_authenticated_user(): void
     {
         $user = User::factory()->create();
