@@ -296,14 +296,19 @@ Create a new meal.
 {
     "name": "breakfast",
     "notes": "Morning meal",
-    "meal_time": "2026-05-05 08:00:00"
+    "meal_time": "2026-05-05 08:00:00",
+    "photo_path": "meal-scans/abc123.jpg"
 }
 ```
 
 **Field Constraints:**
-- `name`: `breakfast`, `lunch`, `dinner`, `snack`
+- `name`: free-form, up to 255 characters (the app saves the AI's own meal
+  name, e.g. "Southeast Asian rice meal")
+- `photo_path`: optional. Either `meal-scans/<file>` (the path the AI analyser
+  already stored) or `meals/<file>` (an upload). Anything else is rejected with
+  422 - a meal may only point at a file the API can serve.
 
-**Response (201):** The created meal object.
+**Response (201):** The created meal object, including a computed `photo_url`.
 
 ---
 
@@ -318,7 +323,8 @@ Get a specific meal with food logs.
     "id": 1,
     "user_id": 1,
     "name": "breakfast",
-    "photo_path": null,
+    "photo_path": "meal-scans/abc123.jpg",
+    "photo_url": "https://gymapp.mmcertify.com/api/v1/media/meal-scans/abc123.jpg",
     "notes": "Morning meal",
     "total_calories": "450.00",
     "total_protein": "30.00",
@@ -337,6 +343,31 @@ Get a specific meal with food logs.
     ]
 }
 ```
+
+`photo_url` is computed, not stored. It always points at
+`/api/v1/media/...`, never `/storage/...`, because the storage symlink is not
+followed on the production host. `photo_url` is `null` when the meal has no
+photo.
+
+---
+
+#### POST /meals/{id}/photo
+🔒 **Requires Authentication**
+
+Attach or replace a meal's photo. Multipart form-data with an `image` field
+(jpg/png/webp, max 10 MB). Replacing deletes the previous file.
+
+**Response (200):** The updated meal, including `photo_url`.
+
+---
+
+#### DELETE /meals/{id}/photo
+🔒 **Requires Authentication**
+
+Remove a meal's photo and delete the file.
+
+**Response (200):** The updated meal with `photo_path` and `photo_url` set to
+`null`.
 
 ---
 

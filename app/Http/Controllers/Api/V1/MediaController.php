@@ -23,7 +23,13 @@ class MediaController extends Controller
     /**
      * Only these directories under storage/app/public may be served.
      */
-    private const DIRECTORIES = ['profile-photos', 'gallery', 'coach-images'];
+    private const DIRECTORIES = [
+        'profile-photos',
+        'gallery',
+        'coach-images',
+        'meal-scans',
+        'meals',
+    ];
 
     public function show(string $directory, string $filename): StreamedResponse
     {

@@ -8,6 +8,7 @@ use App\Http\Requests\Api\V1\UpdateMealRequest;
 use App\Models\Meal;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class MealController extends Controller
 {
@@ -60,5 +61,46 @@ class MealController extends Controller
         $meal->delete();
 
         return response()->json(['message' => 'Meal deleted successfully']);
+    }
+
+    /**
+     * Attach or replace the photo of an already-saved meal.
+     *
+     * The AI scan already stores its own copy, so this exists for meals logged
+     * by hand and for replacing a bad photo.
+     */
+    public function uploadPhoto(Request $request, Meal $meal): JsonResponse
+    {
+        $this->authorize('update', $meal);
+
+        $request->validate([
+            'image' => ['required', 'image', 'max:10240'],
+        ]);
+
+        $previous = $meal->photo_path;
+        $path = $request->file('image')->store('meals', 'public');
+
+        $meal->update(['photo_path' => $path]);
+
+        // Drop the file this one replaces, or a few retakes quietly fill the
+        // disk. Only after the row points at the new file.
+        if ($previous !== null && ! str_starts_with($previous, 'http')) {
+            Storage::disk('public')->delete($previous);
+        }
+
+        return response()->json($meal->fresh()->load('foodLogs'));
+    }
+
+    public function destroyPhoto(Request $request, Meal $meal): JsonResponse
+    {
+        $this->authorize('update', $meal);
+
+        if ($meal->photo_path !== null && ! str_starts_with($meal->photo_path, 'http')) {
+            Storage::disk('public')->delete($meal->photo_path);
+        }
+
+        $meal->update(['photo_path' => null]);
+
+        return response()->json($meal->fresh()->load('foodLogs'));
     }
 }

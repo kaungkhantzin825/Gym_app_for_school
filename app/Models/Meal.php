@@ -26,6 +26,12 @@ class Meal extends Model
         'meal_time',
     ];
 
+    /**
+     * `photo_url` is computed, never stored: the raw `photo_path` means nothing
+     * to a client, and building the URL here keeps it on the API origin.
+     */
+    protected $appends = ['photo_url'];
+
     protected function casts(): array
     {
         return [
@@ -45,5 +51,38 @@ class Meal extends Model
     public function foodLogs(): HasMany
     {
         return $this->hasMany(FoodLog::class);
+    }
+
+    public function getPhotoUrlAttribute(): ?string
+    {
+        return self::photoUrl($this->photo_path);
+    }
+
+    /**
+     * Turn a stored path into a URL the app can actually load.
+     *
+     * `/storage/...` is unreachable on the production host (the symlink is not
+     * followed), so every upload is served by `GET /api/v1/media/...` instead -
+     * the same route `User::profilePhotoUrl()` uses.
+     */
+    public static function photoUrl(?string $photoPath): ?string
+    {
+        if ($photoPath === null || $photoPath === '') {
+            return null;
+        }
+
+        if (str_starts_with($photoPath, 'http://') || str_starts_with($photoPath, 'https://')) {
+            return $photoPath;
+        }
+
+        // `meal-scans/...` comes from the AI analyser, `meals/...` from an
+        // upload. Anything else is treated as a plain file in `meals`.
+        $directory = str_contains($photoPath, '/') ? dirname($photoPath) : 'meals';
+
+        if (! in_array($directory, ['meals', 'meal-scans'], true)) {
+            $directory = 'meals';
+        }
+
+        return url('/api/v1/media/'.$directory.'/'.rawurlencode(basename($photoPath)));
     }
 }

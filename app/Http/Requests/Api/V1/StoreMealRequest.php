@@ -18,7 +18,9 @@ class StoreMealRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'photo_path' => ['nullable', 'string'],
+            // Either the AI scan's stored path or an uploaded file; never a
+            // free-form string, so a client cannot point a meal at anything.
+            'photo_path' => ['nullable', 'string', 'regex:#^(meal-scans|meals)/[A-Za-z0-9._-]+$#'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'meal_time' => ['required', 'date'],
         ];

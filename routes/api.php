@@ -41,7 +41,13 @@ Route::prefix('v1')->group(function () {
     // does not depend on the public/storage symlink existing or being
     // followable by the web server.
     Route::get('/media/{directory}/{filename}', [MediaController::class, 'show'])
-        ->whereIn('directory', ['profile-photos', 'gallery', 'coach-images'])
+        ->whereIn('directory', [
+            'profile-photos',
+            'gallery',
+            'coach-images',
+            'meal-scans',
+            'meals',
+        ])
         ->where('filename', '[A-Za-z0-9._-]+');
 
     // Guest profile (for non-logged in users by device/app_id)
@@ -80,6 +86,8 @@ Route::prefix('v1')->group(function () {
 
         // Meals & Food Logs
         Route::apiResource('meals', MealController::class);
+        Route::post('/meals/{meal}/photo', [MealController::class, 'uploadPhoto']);
+        Route::delete('/meals/{meal}/photo', [MealController::class, 'destroyPhoto']);
         Route::post('/meals/{meal}/food-logs', [FoodLogController::class, 'store']);
         Route::delete('/meals/{meal}/food-logs/{foodLog}', [FoodLogController::class, 'destroy']);
 

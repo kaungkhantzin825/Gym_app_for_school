@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Ai\Agents\MealAnalyzer;
 use App\Http\Controllers\Controller;
+use App\Models\Meal;
 use App\Services\AiKeyRotatorService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -47,7 +48,7 @@ class AiMealController extends Controller
         if (empty($analysisPayload) || empty($analysisPayload['foods'])) {
             return response()->json([
                 'message' => 'Could not identify any food items in the image. Please try a clearer photo.',
-                'image_url' => Storage::disk('public')->url($imagePath),
+                'image_url' => Meal::photoUrl($imagePath),
                 'image_path' => $imagePath,
             ], 422);
         }
@@ -56,7 +57,9 @@ class AiMealController extends Controller
             'foods' => $analysisPayload['foods'],
             'meal_name' => $analysisPayload['meal_name'] ?? 'Analyzed Meal',
             'confidence' => $analysisPayload['confidence'] ?? 0.8,
-            'image_url' => Storage::disk('public')->url($imagePath),
+            // Served by the media route, not /storage/... - the latter 403s on
+            // the production host, so the preview would silently break.
+            'image_url' => Meal::photoUrl($imagePath),
             'image_path' => $imagePath,
             'total_calories' => array_sum(array_column($analysisPayload['foods'], 'calories')),
             'total_protein' => array_sum(array_column($analysisPayload['foods'], 'protein')),
